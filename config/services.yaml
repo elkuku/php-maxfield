@@ -1,0 +1,16 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Elkuku\MaxfieldBundle\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Model/'
+            - '../src/MaxfieldBundle.php'
+
+    Elkuku\MaxfieldBundle\Command\MaxfieldPlanCommand:
+        tags:
+            - { name: 'console.command' }

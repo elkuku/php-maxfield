@@ -1,0 +1,39 @@
+{
+    "name": "elkuku/maxfield-bundle",
+    "description": "Ingress Maxfield: Linking and Fielding Strategy Generator - Symfony Bundle",
+    "type": "symfony-bundle",
+    "license": "GPL-3.0-or-later",
+    "keywords": ["ingress", "maxfield", "symfony", "bundle"],
+    "require": {
+        "php": ">=8.1",
+        "symfony/console": "^6.0|^7.0",
+        "symfony/dependency-injection": "^6.0|^7.0",
+        "symfony/http-kernel": "^6.0|^7.0",
+        "symfony/config": "^6.0|^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "symfony/framework-bundle": "^6.0|^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Elkuku\\MaxfieldBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Elkuku\\MaxfieldBundle\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
