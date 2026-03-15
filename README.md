@@ -4,50 +4,9 @@ Symfony Bundle implementing [Ingress Maxfield](https://github.com/tvwenger/maxfi
 
 ## Installation
 
-### Via Packagist (once published)
-
 ```bash
 composer require elkuku/maxfield-bundle
 ```
-
-### From a local path
-
-Add to your Symfony app's `composer.json`:
-
-```json
-"repositories": [
-    { "type": "path", "url": "/path/to/maxfield-php-2" }
-]
-```
-
-```bash
-composer require elkuku/maxfield-bundle:@dev
-```
-
-### From GitHub (not yet on Packagist)
-
-```json
-"repositories": [
-    { "type": "vcs", "url": "https://github.com/elkuku/maxfield-php-2" }
-]
-```
-
-```bash
-composer require elkuku/maxfield-bundle:dev-master
-```
-
-### Register the bundle
-
-Add to `config/bundles.php` (Symfony Flex does this automatically if a recipe is present):
-
-```php
-return [
-    // ...
-    Elkuku\MaxfieldBundle\MaxfieldBundle::class => ['all' => true],
-];
-```
-
-No further configuration is required. All services are autowired.
 
 ---
 
