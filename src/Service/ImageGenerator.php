@@ -280,11 +280,6 @@ class ImageGenerator
 
     private function generateStepPlots(Plan $plan, \GdImage $base, array $colorRgba, string $outdir, bool $verbose): void
     {
-        $framesDir = $outdir . '/frames';
-        if (!is_dir($framesDir)) {
-            mkdir($framesDir, 0777, true);
-        }
-
         [$ha, $va, $agentHa, $agentVa] = $this->getAlignments($plan);
 
         $colorLine = imagecolorallocate($base, $colorRgba[0], $colorRgba[1], $colorRgba[2]);
@@ -331,7 +326,7 @@ class ImageGenerator
         $frame = 0;
         $framesFiles = [];
         
-        $fname = $framesDir . sprintf('/frame_%05d.gif', $frame++);
+        $fname = $outdir . sprintf('/frame_%05d.gif', $frame++);
         imagegif($img0, $fname);
         $framesFiles[] = $fname;
         imagedestroy($img0);
@@ -367,7 +362,7 @@ class ImageGenerator
 
             if ($moved) {
                 $this->drawAgents($movedMap, $plan, $agentsLastPos, $agentHa, $agentVa);
-                $this->saveFrame($movedMap, $arrival, $numLinks, $numFields, $numAp, $framesDir, $frame, $framesFiles);
+                $this->saveFrame($movedMap, $arrival, $numLinks, $numFields, $numAp, $outdir, $frame, $framesFiles);
             }
             imagedestroy($movedMap);
 
@@ -408,7 +403,7 @@ class ImageGenerator
             }
 
             $this->drawAgents($linkMap, $plan, $agentsLastPos, $agentHa, $agentVa);
-            $this->saveFrame($linkMap, $arrival, $numLinks, $numFields, $numAp, $framesDir, $frame, $framesFiles);
+            $this->saveFrame($linkMap, $arrival, $numLinks, $numFields, $numAp, $outdir, $frame, $framesFiles);
             imagedestroy($linkMap);
         }
         
@@ -428,7 +423,7 @@ class ImageGenerator
         file_put_contents($gifFname, $gif->encode());
         
         if ($verbose) {
-            echo "Frames saved to $framesDir\n";
+            echo "Frames saved to $outdir\n";
             echo "GIF saved to $gifFname\n\n";
         }
     }
