@@ -12,7 +12,7 @@ use Intervention\Gif\Builder as GifBuilder;
  */
 class ImageGenerator
 {
-    private const IMAGE_SIZE = 2048;
+    private const IMAGE_SIZE = 640;
     private const FONT_PATH = '/usr/share/fonts/noto/NotoSans-Bold.ttf';
     private const AP_PER_PORTAL = 1750;
     private const AP_PER_LINK = 313;
@@ -67,12 +67,12 @@ class ImageGenerator
         $centerTileX = ($plan->llCenter[0] + 180.0) / 360.0 * $n;
         $centerTileY = (1.0 - log(tan($centerLat) + (1.0 / cos($centerLat))) / M_PI) / 2.0 * $n;
 
-        // We want 2048x2048. Tiles are 256x256.
-        // A 10x10 grid (2560x2560) centered on our center tile guarantees coverage.
-        $startTileX = (int) floor($centerTileX - 4.0);
-        $startTileY = (int) floor($centerTileY - 4.0);
+        // We want 640x640. Tiles are 256x256.
+        // A 4x4 grid (1024x1024) centered on our center tile guarantees coverage.
+        $startTileX = (int) floor($centerTileX - 1.25);
+        $startTileY = (int) floor($centerTileY - 1.25);
 
-        $canvas = imagecreatetruecolor(10 * 256, 10 * 256);
+        $canvas = imagecreatetruecolor(4 * 256, 4 * 256);
         $bg = imagecolorallocate($canvas, 240, 240, 240);
         imagefill($canvas, 0, 0, $bg);
 
@@ -83,8 +83,8 @@ class ImageGenerator
             ]
         ]);
 
-        for ($dx = 0; $dx < 10; $dx++) {
-            for ($dy = 0; $dy < 10; $dy++) {
+        for ($dx = 0; $dx < 4; $dx++) {
+            for ($dy = 0; $dy < 4; $dy++) {
                 $tx = $startTileX + $dx;
                 $ty = $startTileY + $dy;
                 if ($tx < 0 || $ty < 0 || $tx >= $n || $ty >= $n) continue;
@@ -101,8 +101,8 @@ class ImageGenerator
             }
         }
 
-        // Now crop centered on the fractional $centerTileX, $centerTileY
-        // In our 10x10 canvas, $startTileX corresponds to pixel 0.
+        // Now crop 640x640 centered on the fractional $centerTileX, $centerTileY
+        // In our 4x4 canvas, $startTileX corresponds to pixel 0.
         $centerXInCanvas = ($centerTileX - $startTileX) * 256;
         $centerYInCanvas = ($centerTileY - $startTileY) * 256;
 
@@ -160,7 +160,7 @@ class ImageGenerator
         return [$ha, $va, $agentHa, $agentVa];
     }
 
-    private function drawText(\GdImage $img, int $x, int $y, string $text, string $ha, string $va, bool $bg = false, int $fontSize = 24): void
+    private function drawText(\GdImage $img, int $x, int $y, string $text, string $ha, string $va, bool $bg = false, int $fontSize = 10): void
     {
         $bbox = imagettfbbox((float)$fontSize, 0, self::FONT_PATH, $text);
         if ($bbox === false) {
@@ -174,18 +174,18 @@ class ImageGenerator
 
         $dx = 0;
         if ($ha === 'right') {
-            $dx = -$w - 15;
+            $dx = -$w - 5;
         } elseif ($ha === 'left') {
-            $dx = 15;
+            $dx = 5;
         } else {
             $dx = -$w / 2;
         }
 
         $dy = 0;
         if ($va === 'bottom') {
-            $dy = -$h / 2 + 15;
+            $dy = -$h / 2 + 5;
         } elseif ($va === 'top') {
-            $dy = $h / 2 - 15;
+            $dy = $h / 2 - 5;
         } else {
             $dy = $h / 2;
         }
@@ -195,7 +195,7 @@ class ImageGenerator
 
         if ($bg) {
             $bgColor = imagecolorallocatealpha($img, 255, 0, 255, 63); // magenta semi-transparent
-            imagefilledrectangle($img, (int) ($tx - 5), (int) ($ty - $h - 5), (int) ($tx + $w + 5), (int) ($ty + 5), $bgColor);
+            imagefilledrectangle($img, (int) ($tx - 2), (int) ($ty - $h - 2), (int) ($tx + $w + 2), (int) ($ty + 2), $bgColor);
         }
 
         $black = imagecolorallocate($img, 0, 0, 0);
@@ -225,11 +225,11 @@ class ImageGenerator
         $black = imagecolorallocate($img, 0, 0, 0);
 
         foreach ($plan->portalsMer as $i => [$x, $y]) {
-            imagefilledellipse($img, (int) $x, (int) $y, 30, 30, $color);
-            imagesetthickness($img, 2);
-            imagearc($img, (int) $x, (int) $y, 30, 30, 0, 360, $black);
+            imagefilledellipse($img, (int) $x, (int) $y, 10, 10, $color);
+            imagesetthickness($img, 1);
+            imagearc($img, (int) $x, (int) $y, 10, 10, 0, 360, $black);
             
-            $this->drawText($img, (int)$x, (int)$y, (string)$i, $ha[$i], $va[$i], false, 32);
+            $this->drawText($img, (int)$x, (int)$y, (string)$i, $ha[$i], $va[$i], false, 10);
         }
         
         return $img;
@@ -240,8 +240,8 @@ class ImageGenerator
         $bg = imagecolorallocate($img, 255, 255, 255); 
         $black = imagecolorallocate($img, 0, 0, 0);
         
-        imagefilledrectangle($img, 0, 0, self::IMAGE_SIZE, 60, $bg);
-        imagettftext($img, 40.0, 0, 20, 50, $black, self::FONT_PATH, $title);
+        imagefilledrectangle($img, 0, 0, self::IMAGE_SIZE, 25, $bg);
+        imagettftext($img, 14.0, 0, 10, 20, $black, self::FONT_PATH, $title);
     }
 
     private function drawLinksAndFields(Plan $plan, \GdImage $portalMap, array $colorRgba): \GdImage
@@ -257,7 +257,7 @@ class ImageGenerator
             $i = $linkObj->origin;
             $j = $linkObj->destination;
             
-            imagesetthickness($img, 6);
+            imagesetthickness($img, 2);
             imageline(
                 $img,
                 (int) $plan->portalsMer[$i][0], (int) $plan->portalsMer[$i][1],
@@ -309,10 +309,10 @@ class ImageGenerator
         $black = imagecolorallocate($basePortals, 0, 0, 0);
 
         foreach ($plan->portalsMer as $i => [$x, $y]) {
-            imagefilledellipse($basePortals, (int) $x, (int) $y, 30, 30, $colorPortal);
-            imagesetthickness($basePortals, 2);
-            imagearc($basePortals, (int) $x, (int) $y, 30, 30, 0, 360, $black);
-            $this->drawText($basePortals, (int)$x, (int)$y, (string)$i, $ha[$i], $va[$i], false, 32);
+            imagefilledellipse($basePortals, (int) $x, (int) $y, 10, 10, $colorPortal);
+            imagesetthickness($basePortals, 1);
+            imagearc($basePortals, (int) $x, (int) $y, 10, 10, 0, 360, $black);
+            $this->drawText($basePortals, (int)$x, (int)$y, (string)$i, $ha[$i], $va[$i], false, 10);
         }
 
         $img0 = $this->cloneImage($basePortals);
@@ -323,7 +323,7 @@ class ImageGenerator
             $x = $plan->portalsMer[$portalIdx][0];
             $y = $plan->portalsMer[$portalIdx][1];
             
-            $this->drawText($img0, (int)$x, (int)$y, 'A' . ($agent + 1), $agentHa[$portalIdx], $agentVa[$portalIdx], true, 24);
+            $this->drawText($img0, (int)$x, (int)$y, 'A' . ($agent + 1), $agentHa[$portalIdx], $agentVa[$portalIdx], true, 10);
         }
         $title0 = sprintf("Time: 00:00:00  Links:    0  Fields:    0  AP: %7d", $numAp);
         $this->drawTitle($img0, $title0);
@@ -353,7 +353,7 @@ class ImageGenerator
                 $lastOrigin = $agentsLastPos[$ass->agent];
                 $thisOrigin = $ass->location;
                 if ($lastOrigin !== $thisOrigin) {
-                    imagesetthickness($movedMap, 4);
+                    imagesetthickness($movedMap, 1);
                     imagedashedline(
                         $movedMap,
                         (int) $plan->portalsMer[$lastOrigin][0], (int) $plan->portalsMer[$lastOrigin][1],
@@ -376,14 +376,14 @@ class ImageGenerator
                 $link = [$ass->location, $ass->link];
                 $edge = $plan->graph->getLink($link[0], $link[1]);
 
-                imagesetthickness($currentRender, 6);
+                imagesetthickness($currentRender, 2);
                 imageline(
                     $currentRender,
                     (int) $plan->portalsMer[$link[0]][0], (int) $plan->portalsMer[$link[0]][1],
                     (int) $plan->portalsMer[$link[1]][0], (int) $plan->portalsMer[$link[1]][1],
                     $colorLine
                 );
-                imagesetthickness($linkMap, 6);
+                imagesetthickness($linkMap, 2);
                 imageline(
                     $linkMap,
                     (int) $plan->portalsMer[$link[0]][0], (int) $plan->portalsMer[$link[0]][1],
@@ -438,7 +438,7 @@ class ImageGenerator
         foreach ($agentsPos as $agent => $portalIdx) {
             $x = (int) $plan->portalsMer[$portalIdx][0];
             $y = (int) $plan->portalsMer[$portalIdx][1];
-            $this->drawText($img, $x, $y, 'A' . ($agent + 1), $agentHa[$portalIdx], $agentVa[$portalIdx], true, 24);
+            $this->drawText($img, $x, $y, 'A' . ($agent + 1), $agentHa[$portalIdx], $agentVa[$portalIdx], true, 10);
         }
     }
 

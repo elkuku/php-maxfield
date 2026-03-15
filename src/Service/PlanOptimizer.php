@@ -35,7 +35,7 @@ class PlanOptimizer
 
         $plan->portalsDists = $this->geometry->calcSphericalDistances($portalsLL);
         $plan->portalsGno = $this->geometry->gnomonicProjection($portalsLL);
-        [$plan->portalsMer, $plan->zoom, $plan->llCenter] = $this->geometry->webMercatorProjection($portalsLL, 2048);
+        [$plan->portalsMer, $plan->zoom, $plan->llCenter] = $this->geometry->webMercatorProjection($portalsLL, 640);
 
         // Convex hull
         $plan->perimPortals = $this->geometry->convexHull($plan->portalsGno);
