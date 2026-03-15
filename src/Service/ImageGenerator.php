@@ -23,7 +23,7 @@ class ImageGenerator
             mkdir($outdir, 0777, true);
         }
 
-        $colorRgba = $resColors ? [0, 0, 255] : [0, 255, 0]; // Blue or Green
+        $colorRgba = $resColors ? [0, 0, 255] : [0, 128, 0]; // Blue or Darker Green
 
         $baseImage = $this->fetchBaseMap($plan);
 
