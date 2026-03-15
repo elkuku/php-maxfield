@@ -37,7 +37,7 @@ class MaxfieldPlanner
     public function run(
         string $filename,
         int $numAgents = 1,
-        int $numFieldIterations = 1000,
+        int $numFieldIterations = 100,
         int $maxRouteSolutions = 1000,
         int $maxRouteRuntime = 60,
         string $outdir = '.',

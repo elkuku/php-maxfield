@@ -29,7 +29,7 @@ class MaxfieldPlanCommand extends Command
         $this
             ->addArgument('filename', InputArgument::REQUIRED, 'The properly formatted portal file.')
             ->addOption('num-agents', null, InputOption::VALUE_REQUIRED, 'Number of agents in the operation.', 1)
-            ->addOption('num-iterations', null, InputOption::VALUE_REQUIRED, 'Number of random field plans to generate before selecting the best.', 1000)
+            ->addOption('num-iterations', null, InputOption::VALUE_REQUIRED, 'Number of random field plans to generate before selecting the best.', 100)
             ->addOption('max-route-solutions', null, InputOption::VALUE_REQUIRED, 'Maximum number of agent routing solutions to generate.', 1000)
             ->addOption('max-route-runtime', null, InputOption::VALUE_REQUIRED, 'Maximum runtime of the agent routing algorithm in seconds.', 60)
             ->addOption('outdir', 'o', InputOption::VALUE_REQUIRED, 'Directory where results are saved.', '.')
