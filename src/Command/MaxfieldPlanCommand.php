@@ -35,7 +35,7 @@ class MaxfieldPlanCommand extends Command
             ->addOption('outdir', 'o', InputOption::VALUE_REQUIRED, 'Directory where results are saved.', '.')
             ->addOption('output-csv', null, InputOption::VALUE_NONE, 'Output machine-readable CSV files.')
             ->addOption('res-colors', 'r', InputOption::VALUE_NONE, 'Use Resistance color scheme (informational only).')
-            ->addOption('skip-plots', null, InputOption::VALUE_NONE, 'Skip generating plots (always skipped; no image support yet).')
+            ->addOption('skip-plots', null, InputOption::VALUE_NONE, 'Skip generating plots.')
         ;
     }
 
@@ -50,6 +50,8 @@ class MaxfieldPlanCommand extends Command
         $maxRouteRuntime = (int) $input->getOption('max-route-runtime');
         $outdir = (string) $input->getOption('outdir');
         $outputCsv = (bool) $input->getOption('output-csv');
+        $resColors = (bool) $input->getOption('res-colors');
+        $skipPlots = (bool) $input->getOption('skip-plots');
         $verbose = $output->isVerbose();
 
         if (!file_exists($filename)) {
@@ -66,6 +68,8 @@ class MaxfieldPlanCommand extends Command
                 maxRouteRuntime: $maxRouteRuntime,
                 outdir: $outdir,
                 outputCsv: $outputCsv,
+                resColors: $resColors,
+                skipPlots: $skipPlots,
                 verbose: $verbose,
             );
         } catch (\InvalidArgumentException $e) {

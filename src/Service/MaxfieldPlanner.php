@@ -18,6 +18,7 @@ class MaxfieldPlanner
         private readonly AgentRouter $router,
         private readonly ResultsGenerator $results,
         private readonly LinkReorderer $reorderer,
+        private readonly ImageGenerator $imageGenerator,
     ) {
     }
 
@@ -41,6 +42,8 @@ class MaxfieldPlanner
         int $maxRouteRuntime = 60,
         string $outdir = '.',
         bool $outputCsv = false,
+        bool $resColors = false,
+        bool $skipPlots = false,
         bool $verbose = false,
     ): Plan {
         $start = microtime(true);
@@ -94,6 +97,10 @@ class MaxfieldPlanner
 
         // 7. Generate output files
         $this->results->generateAll($plan, $outdir, $outputCsv, $verbose);
+
+        if (!$skipPlots) {
+            $this->imageGenerator->generateAll($plan, $outdir, $resColors, $verbose);
+        }
 
         if ($verbose) {
             $lastDepart = max(array_map(fn($a) => $a->depart, $plan->assignments));

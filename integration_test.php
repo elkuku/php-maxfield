@@ -24,9 +24,10 @@ $generator = new Generator($fielder, $reorderer);
 $optimizer = new PlanOptimizer($generator, $geo);
 $router = new AgentRouter();
 $results = new ResultsGenerator();
+$imageGen = new \Elkuku\MaxfieldBundle\Service\ImageGenerator();
 $parser = new PortalFileParser();
 
-$planner = new MaxfieldPlanner($parser, $optimizer, $router, $results, $reorderer);
+$planner = new MaxfieldPlanner($parser, $optimizer, $router, $results, $reorderer, $imageGen);
 
 $portalFile = '/home/elkuku/repos/maxfield/example/example_portals.txt';
 $outdir = '/tmp/maxfield-php-out';

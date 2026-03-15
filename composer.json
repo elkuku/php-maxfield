@@ -6,7 +6,7 @@
     "keywords": ["ingress", "maxfield", "symfony", "bundle"],
     "require": {
         "php": ">=8.1",
-        "sybio/gif-creator": "^1.0",
+        "intervention/gif": "^4.2",
         "symfony/config": "^6.0|^7.0|^8.0",
         "symfony/console": "^6.0|^7.0|^8.0",
         "symfony/dependency-injection": "^6.0|^7.0|^8.0",
