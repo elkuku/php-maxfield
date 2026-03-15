@@ -249,7 +249,7 @@ class ImageGenerator
         $img = $this->cloneImage($portalMap);
         
         $colorLine = imagecolorallocate($img, $colorRgba[0], $colorRgba[1], $colorRgba[2]);
-        $colorField = imagecolorallocatealpha($img, $colorRgba[0], $colorRgba[1], $colorRgba[2], 85);
+        $colorField = imagecolorallocatealpha($img, $colorRgba[0], $colorRgba[1], $colorRgba[2], 100);
 
         // draw lines and fields
         $orderedLinks = $plan->graph->getOrderedLinks();
@@ -283,8 +283,8 @@ class ImageGenerator
         [$ha, $va, $agentHa, $agentVa] = $this->getAlignments($plan);
 
         $colorLine = imagecolorallocate($base, $colorRgba[0], $colorRgba[1], $colorRgba[2]);
-        $colorField = imagecolorallocatealpha($base, $colorRgba[0], $colorRgba[1], $colorRgba[2], 85);
-        $colorNewField = imagecolorallocatealpha($base, 255, 0, 0, 85); // red transparent
+        $colorField = imagecolorallocatealpha($base, $colorRgba[0], $colorRgba[1], $colorRgba[2], 100);
+        $colorNewField = imagecolorallocatealpha($base, 255, 0, 0, 100); // red transparent
         $colorMove = imagecolorallocate($base, 255, 0, 255); // magenta
 
         $numLinks = 0;
