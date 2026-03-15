@@ -93,12 +93,13 @@ class GeometryService
     }
 
     /**
-     * Web Mercator projection for a 640x640 pixel image.
+     * Web Mercator projection for an image of given size.
      *
      * @param float[][] $portalsLL Nx2 [lon_rad, lat_rad]
+     * @param int       $size      Image size in pixels
      * @return array{0: float[][], 1: int, 2: float[]} [xy(Nx2), zoom, [center_lon, center_lat]]
      */
-    public function webMercatorProjection(array $portalsLL): array
+    public function webMercatorProjection(array $portalsLL, int $size = 640): array
     {
         $xs = [];
         $ys = [];
@@ -115,7 +116,7 @@ class GeometryService
         $zoom = 1;
         for ($z = 20; $z > 1; $z--) {
             $scale = 2 ** $z;
-            if (max($xs) * $scale < 640.0 && max($ys) * $scale < 640.0) {
+            if (max($xs) * $scale < (float)$size && max($ys) * $scale < (float)$size) {
                 $zoom = $z;
                 break;
             }
@@ -125,15 +126,16 @@ class GeometryService
         $xs = array_map(fn($x) => $x * $scale, $xs);
         $ys = array_map(fn($y) => $y * $scale, $ys);
 
-        $xPad = (640.0 - max($xs)) / 2.0;
-        $yPad = (640.0 - max($ys)) / 2.0;
+        $xPad = ($size - max($xs)) / 2.0;
+        $yPad = ($size - max($ys)) / 2.0;
         $xs = array_map(fn($x) => $x + $xPad, $xs);
         $ys = array_map(fn($y) => $y + $yPad, $ys);
 
         // Inverse transform for center
-        $centerLon = M_PI / 128.0 * ((320.0 - $xPad) / $scale + $xMin) - M_PI;
+        $half = (float)$size / 2.0;
+        $centerLon = M_PI / 128.0 * (($half - $xPad) / $scale + $xMin) - M_PI;
         $centerLon = rad2deg($centerLon);
-        $cl = M_PI - M_PI / 128.0 * ((320.0 - $yPad) / $scale + $yMin);
+        $cl = M_PI - M_PI / 128.0 * (($half - $yPad) / $scale + $yMin);
         $centerLat = 2.0 * atan(exp($cl)) - M_PI / 2.0;
         $centerLat = rad2deg($centerLat);
 
