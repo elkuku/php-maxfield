@@ -61,11 +61,11 @@ class ImageGenerator
         $centerTileY = (1.0 - log(tan($centerLat) + (1.0 / cos($centerLat))) / M_PI) / 2.0 * $n;
 
         // We want 640x640. Tiles are 256x256.
-        // A 3x3 grid (768x768) centered roughly on our center tile should cover 640x640.
+        // A 4x4 grid (1024x1024) centered on our center tile guarantees coverage.
         $startTileX = (int) floor($centerTileX - 1.25);
         $startTileY = (int) floor($centerTileY - 1.25);
 
-        $canvas = imagecreatetruecolor(3 * 256, 3 * 256);
+        $canvas = imagecreatetruecolor(4 * 256, 4 * 256);
         $bg = imagecolorallocate($canvas, 240, 240, 240);
         imagefill($canvas, 0, 0, $bg);
 
@@ -76,8 +76,8 @@ class ImageGenerator
             ]
         ]);
 
-        for ($dx = 0; $dx < 3; $dx++) {
-            for ($dy = 0; $dy < 3; $dy++) {
+        for ($dx = 0; $dx < 4; $dx++) {
+            for ($dy = 0; $dy < 4; $dy++) {
                 $tx = $startTileX + $dx;
                 $ty = $startTileY + $dy;
                 if ($tx < 0 || $ty < 0 || $tx >= $n || $ty >= $n) continue;
@@ -95,7 +95,7 @@ class ImageGenerator
         }
 
         // Now crop 640x640 centered on the fractional $centerTileX, $centerTileY
-        // In our 3x3 canvas, $startTileX corresponds to pixel 0.
+        // In our 4x4 canvas, $startTileX corresponds to pixel 0.
         $centerXInCanvas = ($centerTileX - $startTileX) * 256;
         $centerYInCanvas = ($centerTileY - $startTileY) * 256;
 
@@ -103,6 +103,9 @@ class ImageGenerator
         $cropY = (int) ($centerYInCanvas - self::IMAGE_SIZE / 2);
 
         $result = imagecreatetruecolor(self::IMAGE_SIZE, self::IMAGE_SIZE);
+        $bgRes = imagecolorallocate($result, 240, 240, 240);
+        imagefill($result, 0, 0, $bgRes);
+
         imagecopy($result, $canvas, 0, 0, (int)$cropX, (int)$cropY, self::IMAGE_SIZE, self::IMAGE_SIZE);
         imagedestroy($canvas);
 
