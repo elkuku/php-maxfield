@@ -31,13 +31,19 @@ class ImageGenerator
             echo "Generating portal map.\n";
         }
         $portalMap = $this->drawPortals($plan, $baseImage, $colorRgba);
-        imagepng($portalMap, $outdir . '/portal_map.png');
+        $portalMapWithTitle = $this->cloneImage($portalMap);
+        $this->drawTitle($portalMapWithTitle, sprintf("Portal Map: %d", \count($plan->portals)));
+        imagepng($portalMapWithTitle, $outdir . '/portal_map.png');
+        imagedestroy($portalMapWithTitle);
 
         if ($verbose) {
             echo "Generating link map.\n";
         }
         $linkMap = $this->drawLinksAndFields($plan, $portalMap, $colorRgba);
-        imagepng($linkMap, $outdir . '/link_map.png');
+        $linkMapWithTitle = $this->cloneImage($linkMap);
+        $this->drawTitle($linkMapWithTitle, sprintf("Link Map: %d links and %d fields", $plan->graph->numLinks, $plan->graph->numFields));
+        imagepng($linkMapWithTitle, $outdir . '/link_map.png');
+        imagedestroy($linkMapWithTitle);
 
         if ($verbose) {
             echo "Generating step-by-step plots.\n";
@@ -221,15 +227,12 @@ class ImageGenerator
             $this->drawText($img, (int)$x, (int)$y, (string)$i, $ha[$i], $va[$i]);
         }
         
-        $title = sprintf("Portal Map: %d", \count($plan->portals));
-        $this->drawTitle($img, $title);
-        
         return $img;
     }
 
     private function drawTitle(\GdImage $img, string $title): void
     {
-        $bg = imagecolorallocatealpha($img, 255, 255, 255, 32); 
+        $bg = imagecolorallocate($img, 255, 255, 255); 
         $black = imagecolorallocate($img, 0, 0, 0);
         
         imagefilledrectangle($img, 0, 0, self::IMAGE_SIZE, 20, $bg);
@@ -265,9 +268,6 @@ class ImageGenerator
                 imagefilledpolygon($img, $points, $colorField);
             }
         }
-        
-        $title = sprintf("Link Map: %d links and %d fields", $plan->graph->numLinks, $plan->graph->numFields);
-        $this->drawTitle($img, $title);
         
         return $img;
     }
