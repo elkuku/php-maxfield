@@ -108,9 +108,9 @@ class GeometryService
         }
 
         $xMin = min($xs);
-        $yMax = max($ys);
+        $yMin = min($ys);
         $xs = array_map(fn($x) => $x - $xMin, $xs);
-        $ys = array_map(fn($y) => $yMax - $y, $ys);
+        $ys = array_map(fn($y) => $y - $yMin, $ys);
 
         $zoom = 1;
         for ($z = 20; $z > 1; $z--) {
@@ -133,7 +133,7 @@ class GeometryService
         // Inverse transform for center
         $centerLon = M_PI / 128.0 * ((320.0 - $xPad) / $scale + $xMin) - M_PI;
         $centerLon = rad2deg($centerLon);
-        $cl = M_PI - M_PI / 128.0 * ($yMax - (320.0 - $yPad) / $scale);
+        $cl = M_PI - M_PI / 128.0 * ((320.0 - $yPad) / $scale + $yMin);
         $centerLat = 2.0 * atan(exp($cl)) - M_PI / 2.0;
         $centerLat = rad2deg($centerLat);
 
