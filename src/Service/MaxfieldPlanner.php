@@ -65,7 +65,7 @@ class MaxfieldPlanner
             printf("Starting field generation (%d iterations).\n", $numFieldIterations);
             $t = microtime(true);
         }
-        $this->optimizer->optimize($plan, $numFieldIterations);
+        $this->optimizer->optimize($plan, $numFieldIterations, $verbose);
         if ($verbose) {
             printf("Field generation runtime: %.1f seconds.\n\n", microtime(true) - $t);
         }

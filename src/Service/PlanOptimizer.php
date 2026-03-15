@@ -54,11 +54,21 @@ class PlanOptimizer
      *
      * Saves the best graph to $plan->graph.
      */
-    public function optimize(Plan $plan, int $numIterations = 1000): void
+    public function optimize(Plan $plan, int $numIterations = 100, bool $verbose = false): void
     {
         $results = [];
+        $progressInterval = max(1, (int)($numIterations / 10));
+
         for ($i = 0; $i < $numIterations; $i++) {
             $results[] = $this->generator->generate($plan);
+
+            if ($verbose && ($i + 1) % $progressInterval === 0) {
+                printf("  Iteration %d/%d (%.0f%%)\n", $i + 1, $numIterations, ($i + 1) / $numIterations * 100);
+            }
+        }
+
+        if ($verbose && $numIterations % $progressInterval !== 0) {
+             printf("  Iteration %d/%d (100%%)\n", $numIterations, $numIterations);
         }
 
         usort($results, fn(Graph $a, Graph $b) => $this->comparePlans($a, $b));
