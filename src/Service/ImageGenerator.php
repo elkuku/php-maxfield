@@ -51,34 +51,62 @@ class ImageGenerator
 
     private function fetchBaseMap(Plan $plan): \GdImage
     {
-        $centerLat = $plan->llCenter[1];
-        $centerLon = $plan->llCenter[0];
+        $centerLat = deg2rad($plan->llCenter[1]);
+        $centerLon = deg2rad($plan->llCenter[0]);
         $zoom = $plan->zoom;
 
-        $url = sprintf(
-            'http://staticmap.openstreetmap.de/staticmap.php?center=%f,%f&zoom=%d&size=%dx%d&maptype=mapnik',
-            $centerLat, $centerLon, $zoom, self::IMAGE_SIZE, self::IMAGE_SIZE
-        );
+        // Calculate center tile coordinates (fractional)
+        $n = 2 ** $zoom;
+        $centerTileX = ($plan->llCenter[0] + 180.0) / 360.0 * $n;
+        $centerTileY = (1.0 - log(tan($centerLat) + (1.0 / cos($centerLat))) / M_PI) / 2.0 * $n;
+
+        // We want 640x640. Tiles are 256x256.
+        // A 3x3 grid (768x768) centered roughly on our center tile should cover 640x640.
+        $startTileX = (int) floor($centerTileX - 1.25);
+        $startTileY = (int) floor($centerTileY - 1.25);
+
+        $canvas = imagecreatetruecolor(3 * 256, 3 * 256);
+        $bg = imagecolorallocate($canvas, 240, 240, 240);
+        imagefill($canvas, 0, 0, $bg);
 
         $context = stream_context_create([
             'http' => [
                 'timeout' => 5,
-                'user_agent' => 'MaxfieldGenerator/1.0 PHP',
+                'user_agent' => 'MaxfieldGenerator/1.0 PHP (+https://github.com/elkuku/maxfield-php-2)',
             ]
         ]);
 
-        $imageContent = @file_get_contents($url, false, $context);
-        if ($imageContent !== false) {
-            $img = @imagecreatefromstring($imageContent);
-            if ($img !== false) {
-                return $img;
+        for ($dx = 0; $dx < 3; $dx++) {
+            for ($dy = 0; $dy < 3; $dy++) {
+                $tx = $startTileX + $dx;
+                $ty = $startTileY + $dy;
+                if ($tx < 0 || $ty < 0 || $tx >= $n || $ty >= $n) continue;
+
+                $url = sprintf('https://tile.openstreetmap.org/%d/%d/%d.png', $zoom, $tx, $ty);
+                $tileContent = @file_get_contents($url, false, $context);
+                if ($tileContent !== false) {
+                    $tileImg = @imagecreatefromstring($tileContent);
+                    if ($tileImg !== false) {
+                        imagecopy($canvas, $tileImg, (int)($dx * 256), (int)($dy * 256), 0, 0, 256, 256);
+                        imagedestroy($tileImg);
+                    }
+                }
             }
         }
 
-        $img = imagecreatetruecolor(self::IMAGE_SIZE, self::IMAGE_SIZE);
-        $bg = imagecolorallocate($img, 240, 240, 240);
-        imagefill($img, 0, 0, $bg);
-        return $img;
+        // Now crop 640x640 centered on the fractional $centerTileX, $centerTileY
+        // In our 3x3 canvas, $startTileX corresponds to pixel 0.
+        $centerXInCanvas = ($centerTileX - $startTileX) * 256;
+        $centerYInCanvas = ($centerTileY - $startTileY) * 256;
+
+        $cropX = (int) ($centerXInCanvas - self::IMAGE_SIZE / 2);
+        $cropY = (int) ($centerYInCanvas - self::IMAGE_SIZE / 2);
+
+        $result = imagecreatetruecolor(self::IMAGE_SIZE, self::IMAGE_SIZE);
+        imagecopy($result, $canvas, 0, 0, (int)$cropX, (int)$cropY, self::IMAGE_SIZE, self::IMAGE_SIZE);
+        imagedestroy($canvas);
+
+        return $result;
     }
 
     private function getAlignments(Plan $plan): array
